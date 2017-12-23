@@ -1,24 +1,16 @@
-"""
-    Extract data using provided helper
-"""
-
 import helper
+import os
+from glob import glob
+from matplotlib import pyplot as plt
 
 data_dir = './data'
+
 helper.download_extract('mnist', data_dir)
 helper.download_extract('celeba', data_dir)
-
-"""
-    Preview some selected data
-"""
 
 show_n_images = 25
 
 get_ipython().magic('matplotlib inline')
-
-import os
-from glob import glob
-from matplotlib import pyplot as plt
 
 mnist_images = helper.get_batch(glob(os.path.join(data_dir, 'mnist/*.jpg'))[:show_n_images], 28, 28, 'L')
 plt.imshow(helper.images_square_grid(mnist_images, 'L'), cmap='gray')
@@ -28,29 +20,6 @@ mnist_images = helper.get_batch(glob(os.path.join(data_dir, 'img_align_celeba/*.
 plt.imshow(helper.images_square_grid(mnist_images, 'RGB'))
 plt.show()
 
-
-# ## Preprocess the Data
-# Since the project's main focus is on building the GANs, we'll preprocess the data for you.  The values of the MNIST and CelebA dataset will be in the range of -0.5 to 0.5 of 28x28 dimensional images.  The CelebA images will be cropped to remove parts of the image that don't include a face, then resized down to 28x28.
-#
-# The MNIST images are black and white images with a single [color channel](https://en.wikipedia.org/wiki/Channel_(digital_image%29) while the CelebA images have [3 color channels (RGB color channel)](https://en.wikipedia.org/wiki/Channel_(digital_image%29#RGB_Images).
-# ## Build the Neural Network
-# You'll build the components necessary to build a GANs by implementing the following functions below:
-# - `model_inputs`
-# - `discriminator`
-# - `generator`
-# - `model_loss`
-# - `model_opt`
-# - `train`
-#
-# ### Check the Version of TensorFlow and Access to GPU
-# This will check to make sure you have the correct version of TensorFlow and access to a GPU
-
-# In[4]:
-
-
-"""
-DON'T MODIFY ANYTHING IN THIS CELL
-"""
 from distutils.version import LooseVersion
 import warnings
 import tensorflow as tf
@@ -64,18 +33,6 @@ if not tf.test.gpu_device_name():
     warnings.warn('No GPU found. Please use a GPU to train your neural network.')
 else:
     print('Default GPU Device: {}'.format(tf.test.gpu_device_name()))
-
-
-# ### Input
-# Implement the `model_inputs` function to create TF Placeholders for the Neural Network. It should create the following placeholders:
-# - Real input images placeholder with rank 4 using `image_width`, `image_height`, and `image_channels`.
-# - Z input placeholder with rank 2 using `z_dim`.
-# - Learning rate placeholder with rank 0.
-#
-# Return the placeholders in the following the tuple (tensor of real input images, tensor of z data)
-
-# In[5]:
-
 
 import problem_unittests as tests
 
