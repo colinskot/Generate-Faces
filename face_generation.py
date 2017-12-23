@@ -3,36 +3,52 @@ import os
 from glob import glob
 from matplotlib import pyplot as plt
 
-data_dir = './data'
+def extract_data():
+    """
+        Extract data from MNIST & CelebA datasets
+    """
+    data_dir = './data'
 
-helper.download_extract('mnist', data_dir)
-helper.download_extract('celeba', data_dir)
+    helper.download_extract('mnist', data_dir)
+    helper.download_extract('celeba', data_dir)
 
-show_n_images = 25
 
-get_ipython().magic('matplotlib inline')
+def display_examples(n_images):
+    """
+        Display an example of MNIST & CelebA
+        :param n_images: number of images to display
+    """
 
-mnist_images = helper.get_batch(glob(os.path.join(data_dir, 'mnist/*.jpg'))[:show_n_images], 28, 28, 'L')
-plt.imshow(helper.images_square_grid(mnist_images, 'L'), cmap='gray')
-plt.show()
+    show_n_images = n_images
 
-mnist_images = helper.get_batch(glob(os.path.join(data_dir, 'img_align_celeba/*.jpg'))[:show_n_images], 28, 28, 'RGB')
-plt.imshow(helper.images_square_grid(mnist_images, 'RGB'))
-plt.show()
+    get_ipython().magic('matplotlib inline')
 
-from distutils.version import LooseVersion
-import warnings
-import tensorflow as tf
+    mnist_images = helper.get_batch(glob(os.path.join(data_dir, 'mnist/*.jpg'))[:show_n_images], 28, 28, 'L')
+    plt.imshow(helper.images_square_grid(mnist_images, 'L'), cmap='gray')
+    plt.show()
 
-# Check TensorFlow Version
-assert LooseVersion(tf.__version__) >= LooseVersion('1.0'), 'Please use TensorFlow version 1.0 or newer.  You are using {}'.format(tf.__version__)
-print('TensorFlow Version: {}'.format(tf.__version__))
+    mnist_images = helper.get_batch(glob(os.path.join(data_dir, 'img_align_celeba/*.jpg'))[:show_n_images], 28, 28, 'RGB')
+    plt.imshow(helper.images_square_grid(mnist_images, 'RGB'))
+    plt.show()
 
-# Check for a GPU
-if not tf.test.gpu_device_name():
-    warnings.warn('No GPU found. Please use a GPU to train your neural network.')
-else:
-    print('Default GPU Device: {}'.format(tf.test.gpu_device_name()))
+def check_tf_gpu():
+    """
+        Checks/prints GPU & TensorFlow version
+    """
+    from distutils.version import LooseVersion
+    import warnings
+    import tensorflow as tf
+
+    # Check TensorFlow Version
+    assert LooseVersion(tf.__version__) >= LooseVersion('1.0'), 'Please use TensorFlow version 1.0 or newer.  You are using {}'.format(tf.__version__)
+    print('TensorFlow Version: {}'.format(tf.__version__))
+
+    # Check for a GPU
+    if not tf.test.gpu_device_name():
+        warnings.warn('No GPU found. Please use a GPU to train your neural network.')
+    else:
+        print('Default GPU Device: {}'.format(tf.test.gpu_device_name()))
+
 
 import problem_unittests as tests
 
@@ -59,12 +75,6 @@ def model_inputs(image_width, image_height, image_channels, z_dim):
 DON'T MODIFY ANYTHING IN THIS CELL THAT IS BELOW THIS LINE
 """
 tests.test_model_inputs(model_inputs)
-
-
-# ### Discriminator
-# Implement `discriminator` to create a discriminator neural network that discriminates on `images`.  This function should be able to reuse the variables in the neural network.  Use [`tf.variable_scope`](https://www.tensorflow.org/api_docs/python/tf/variable_scope) with a scope name of "discriminator" to allow the variables to be reused.  The function should return a tuple of (tensor output of the discriminator, tensor logits of the discriminator).
-
-# In[6]:
 
 
 def discriminator(images, reuse=False):
@@ -106,12 +116,6 @@ def discriminator(images, reuse=False):
 DON'T MODIFY ANYTHING IN THIS CELL THAT IS BELOW THIS LINE
 """
 tests.test_discriminator(discriminator, tf)
-
-
-# ### Generator
-# Implement `generator` to generate an image using `z`. This function should be able to reuse the variables in the neural network.  Use [`tf.variable_scope`](https://www.tensorflow.org/api_docs/python/tf/variable_scope) with a scope name of "generator" to allow the variables to be reused. The function should return the generated 28 x 28 x `out_channel_dim` images.
-
-# In[12]:
 
 
 def generator(z, out_channel_dim, is_train=True):
@@ -168,21 +172,10 @@ def generator(z, out_channel_dim, is_train=True):
 
         # return output
         return output
-
-
 """
 DON'T MODIFY ANYTHING IN THIS CELL THAT IS BELOW THIS LINE
 """
 tests.test_generator(generator, tf)
-
-
-# ### Loss
-# Implement `model_loss` to build the GANs for training and calculate the loss.  The function should return a tuple of (discriminator loss, generator loss).  Use the following functions you implemented:
-# - `discriminator(images, reuse=False)`
-# - `generator(z, out_channel_dim, is_train=True)`
-
-# In[13]:
-
 
 def model_loss(input_real, input_z, out_channel_dim):
     """
@@ -221,12 +214,6 @@ DON'T MODIFY ANYTHING IN THIS CELL THAT IS BELOW THIS LINE
 tests.test_model_loss(model_loss)
 
 
-# ### Optimization
-# Implement `model_opt` to create the optimization operations for the GANs. Use [`tf.trainable_variables`](https://www.tensorflow.org/api_docs/python/tf/trainable_variables) to get all the trainable variables.  Filter the variables with names that are in the discriminator and generator scope names.  The function should return a tuple of (discriminator training operation, generator training operation).
-
-# In[14]:
-
-
 def model_opt(d_loss, g_loss, learning_rate, beta1):
     """
     Get optimization operations
@@ -255,13 +242,6 @@ def model_opt(d_loss, g_loss, learning_rate, beta1):
 DON'T MODIFY ANYTHING IN THIS CELL THAT IS BELOW THIS LINE
 """
 tests.test_model_opt(model_opt, tf)
-
-
-# ## Neural Network Training
-# ### Show Output
-# Use this function to show the current output of the generator during training. It will help you determine how well the GANs is training.
-
-# In[15]:
 
 
 """
