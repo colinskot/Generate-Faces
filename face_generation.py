@@ -1,22 +1,25 @@
 import helper
 import os
+import numpy as np
+import tensorflow as tf
 from glob import glob
 from matplotlib import pyplot as plt
 
+# directory for datasets
+data_dir = './data'
+
 def extract_data():
     """
-        Extract data from MNIST & CelebA datasets
+    Extract data from MNIST & CelebA datasets
     """
-    data_dir = './data'
 
     helper.download_extract('mnist', data_dir)
     helper.download_extract('celeba', data_dir)
 
-
 def display_examples(n_images):
     """
-        Display an example of MNIST & CelebA
-        :param n_images: number of images to display
+    Display an example of MNIST & CelebA
+    :param n_images: number of images to display
     """
 
     show_n_images = n_images
@@ -33,7 +36,7 @@ def display_examples(n_images):
 
 def check_tf_gpu():
     """
-        Checks/prints GPU & TensorFlow version
+    Checks/prints GPU & TensorFlow version
     """
     from distutils.version import LooseVersion
     import warnings
@@ -49,8 +52,9 @@ def check_tf_gpu():
     else:
         print('Default GPU Device: {}'.format(tf.test.gpu_device_name()))
 
-
-import problem_unittests as tests
+# checks/pre-process
+extract_data()
+check_tf_gpu()
 
 def model_inputs(image_width, image_height, image_channels, z_dim):
     """
@@ -69,13 +73,6 @@ def model_inputs(image_width, image_height, image_channels, z_dim):
 
     # return tuple of inputs real, inputs z & learning rate
     return inputs_real, inputs_z, learn_rate
-
-
-"""
-DON'T MODIFY ANYTHING IN THIS CELL THAT IS BELOW THIS LINE
-"""
-tests.test_model_inputs(model_inputs)
-
 
 def discriminator(images, reuse=False):
     """
@@ -111,12 +108,6 @@ def discriminator(images, reuse=False):
 
         # return output & logits
         return output, logits
-
-"""
-DON'T MODIFY ANYTHING IN THIS CELL THAT IS BELOW THIS LINE
-"""
-tests.test_discriminator(discriminator, tf)
-
 
 def generator(z, out_channel_dim, is_train=True):
     """
@@ -172,10 +163,6 @@ def generator(z, out_channel_dim, is_train=True):
 
         # return output
         return output
-"""
-DON'T MODIFY ANYTHING IN THIS CELL THAT IS BELOW THIS LINE
-"""
-tests.test_generator(generator, tf)
 
 def model_loss(input_real, input_z, out_channel_dim):
     """
@@ -207,13 +194,6 @@ def model_loss(input_real, input_z, out_channel_dim):
     # return tuple of d_loss & g_loss
     return d_loss, g_loss
 
-
-"""
-DON'T MODIFY ANYTHING IN THIS CELL THAT IS BELOW THIS LINE
-"""
-tests.test_model_loss(model_loss)
-
-
 def model_opt(d_loss, g_loss, learning_rate, beta1):
     """
     Get optimization operations
@@ -237,18 +217,6 @@ def model_opt(d_loss, g_loss, learning_rate, beta1):
     # return tuple of discriminator & generator training optimization
     return d_train_opt, g_train_opt
 
-
-"""
-DON'T MODIFY ANYTHING IN THIS CELL THAT IS BELOW THIS LINE
-"""
-tests.test_model_opt(model_opt, tf)
-
-
-"""
-DON'T MODIFY ANYTHING IN THIS CELL
-"""
-import numpy as np
-
 def show_generator_output(sess, n_images, input_z, out_channel_dim, image_mode):
     """
     Show example output for the generator
@@ -269,18 +237,6 @@ def show_generator_output(sess, n_images, input_z, out_channel_dim, image_mode):
     images_grid = helper.images_square_grid(samples, image_mode)
     pyplot.imshow(images_grid, cmap=cmap)
     pyplot.show()
-
-
-# ### Train
-# Implement `train` to build and train the GANs.  Use the following functions you implemented:
-# - `model_inputs(image_width, image_height, image_channels, z_dim)`
-# - `model_loss(input_real, input_z, out_channel_dim)`
-# - `model_opt(d_loss, g_loss, learning_rate, beta1)`
-#
-# Use the `show_generator_output` to show `generator` output while you train. Running `show_generator_output` for every batch will drastically increase training time and increase the size of the notebook.  It's recommended to print the `generator` output every 100 batches.
-
-# In[16]:
-
 
 def train(epoch_count, batch_size, z_dim, learning_rate, beta1, get_batches, data_shape, data_image_mode):
     """
@@ -303,6 +259,7 @@ def train(epoch_count, batch_size, z_dim, learning_rate, beta1, get_batches, dat
     steps = 0
     output_channel = 3 if data_image_mode=="RGB" else 1
 
+    # run tf session, print step/epoch & discriminator/generator loss
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         for epoch_i in range(epoch_count):
@@ -310,10 +267,10 @@ def train(epoch_count, batch_size, z_dim, learning_rate, beta1, get_batches, dat
                 steps += 1
                 batch_images *= 2.0
 
-                # Sample random noise for generator
+                # sample random noise for generator
                 batch_z = np.random.uniform(-1, 1, size=(batch_size, z_dim))
 
-                # Run optimizers
+                # run optimizers
                 _ = sess.run(d_opt, feed_dict={input_z: batch_z,
                                                input_real: batch_images,
                                                learn_rate: learning_rate})
@@ -323,14 +280,14 @@ def train(epoch_count, batch_size, z_dim, learning_rate, beta1, get_batches, dat
                                                learn_rate: learning_rate})
 
                 if steps % 10 == 0:
-                    # At the end of each epoch, get the losses and print them out
+                    # at the end of each epoch, get the losses and print them out
                     train_loss_d = d_loss.eval({input_z: batch_z,
                                                 input_real:batch_images})
 
                     train_loss_g = g_loss.eval({input_z: batch_z,
                                                 input_real:batch_images})
 
-                    print("Epoch {}/{}...".format(epoch_i+1, epochs),
+                    print("Epoch {}/{}...".format(epoch_i+1, epoch_count),
                           "Discriminator Loss: {:.4f}...".format(train_loss_d),
                           "Generator Loss: {:.4f}".format(train_loss_g))
 
@@ -338,52 +295,53 @@ def train(epoch_count, batch_size, z_dim, learning_rate, beta1, get_batches, dat
                     show_generator_output(sess, 20, input_z, output_channel, data_image_mode)
 
 
+def train_mnist(epochs):
+    """
+    Train the GAN using the MNIST dataset
+    :param epochs: number of epochs to train
+    """
 
-# ### MNIST
-# Test your GANs architecture on MNIST.  After 2 epochs, the GANs should be able to generate images that look like handwritten digits.  Make sure the loss of the generator is lower than the loss of the discriminator or close to 0.
+    mnist_dataset = helper.Dataset('mnist', glob(os.path.join(data_dir, 'mnist/*.jpg')))
+    with tf.Graph().as_default():
+        train(epochs, batch_size, z_dim, learning_rate, beta1,
+            mnist_dataset.get_batches, mnist_dataset.shape, mnist_dataset.image_mode)
 
-# In[17]:
+
+def train_celeb(epochs):
+    """
+    Train the GAN using the CelebA dataset
+    :param epochs: number of epochs to train
+    """
+
+    celeba_dataset = helper.Dataset('celeba', glob(os.path.join(data_dir, 'img_align_celeba/*.jpg')))
+    with tf.Graph().as_default():
+        train(epochs, batch_size, z_dim, learning_rate, beta1,
+            celeba_dataset.get_batches, celeba_dataset.shape, celeba_dataset.image_mode)
 
 
+def run_tests(b):
+    """
+    Runs all tests from problem_unittests
+    :param b: whether to run tests
+    """
+    import problem_unittests as t
+
+    if b:
+        t.test_model_inputs(model_inputs)
+        t.test_discriminator(discriminator, tf)
+        t.test_generator(generator, tf)
+        t.test_model_loss(model_loss)
+        t.test_model_opt(model_opt, tf)
+
+
+# run tests
+run_tests(False)
+
+# hyperparameters
 batch_size = 128
 z_dim = 100
 learning_rate = 0.001
 beta1 = 0.3
 
-
-"""
-DON'T MODIFY ANYTHING IN THIS CELL THAT IS BELOW THIS LINE
-"""
-epochs = 2
-
-mnist_dataset = helper.Dataset('mnist', glob(os.path.join(data_dir, 'mnist/*.jpg')))
-with tf.Graph().as_default():
-    train(epochs, batch_size, z_dim, learning_rate, beta1, mnist_dataset.get_batches,
-          mnist_dataset.shape, mnist_dataset.image_mode)
-
-
-# ### CelebA
-# Run your GANs on CelebA.  It will take around 20 minutes on the average GPU to run one epoch.  You can run the whole epoch or stop when it starts to generate realistic faces.
-
-# In[18]:
-
-
-batch_size = 128
-z_dim = 100
-learning_rate = 0.001
-beta1 = 0.3
-
-
-"""
-DON'T MODIFY ANYTHING IN THIS CELL THAT IS BELOW THIS LINE
-"""
-epochs = 1
-
-celeba_dataset = helper.Dataset('celeba', glob(os.path.join(data_dir, 'img_align_celeba/*.jpg')))
-with tf.Graph().as_default():
-    train(epochs, batch_size, z_dim, learning_rate, beta1, celeba_dataset.get_batches,
-          celeba_dataset.shape, celeba_dataset.image_mode)
-
-
-# ### Submitting This Project
-# When submitting this project, make sure to run all the cells before saving the notebook. Save the notebook file as "dlnd_face_generation.ipynb" and save it as a HTML file under "File" -> "Download as". Include the "helper.py" and "problem_unittests.py" files in your submission.
+# train on datasets
+train_mnist(2)
