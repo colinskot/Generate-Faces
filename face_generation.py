@@ -6,15 +6,15 @@ from glob import glob
 from matplotlib import pyplot as plt
 
 # directory for datasets
-data_dir = './data'
+DATA_DIR = './data'
 
 def extract_data():
     """
     Extract data from MNIST & CelebA datasets
     """
 
-    helper.download_extract('mnist', data_dir)
-    helper.download_extract('celeba', data_dir)
+    helper.download_extract('mnist', DATA_DIR)
+    helper.download_extract('celeba', DATA_DIR)
 
 def display_examples(n_images):
     """
@@ -26,11 +26,11 @@ def display_examples(n_images):
 
     get_ipython().magic('matplotlib inline')
 
-    mnist_images = helper.get_batch(glob(os.path.join(data_dir, 'mnist/*.jpg'))[:show_n_images], 28, 28, 'L')
+    mnist_images = helper.get_batch(glob(os.path.join(DATA_DIR, 'mnist/*.jpg'))[:show_n_images], 28, 28, 'L')
     plt.imshow(helper.images_square_grid(mnist_images, 'L'), cmap='gray')
     plt.show()
 
-    mnist_images = helper.get_batch(glob(os.path.join(data_dir, 'img_align_celeba/*.jpg'))[:show_n_images], 28, 28, 'RGB')
+    mnist_images = helper.get_batch(glob(os.path.join(DATA_DIR, 'img_align_celeba/*.jpg'))[:show_n_images], 28, 28, 'RGB')
     plt.imshow(helper.images_square_grid(mnist_images, 'RGB'))
     plt.show()
 
@@ -226,6 +226,7 @@ def show_generator_output(sess, n_images, input_z, out_channel_dim, image_mode):
     :param out_channel_dim: The number of channels in the output image
     :param image_mode: The mode to use for images ("RGB" or "L")
     """
+
     cmap = None if image_mode == 'RGB' else 'gray'
     z_dim = input_z.get_shape().as_list()[-1]
     example_z = np.random.uniform(-1, 1, size=[n_images, z_dim])
@@ -235,8 +236,8 @@ def show_generator_output(sess, n_images, input_z, out_channel_dim, image_mode):
         feed_dict={input_z: example_z})
 
     images_grid = helper.images_square_grid(samples, image_mode)
-    pyplot.imshow(images_grid, cmap=cmap)
-    pyplot.show()
+    plt.imshow(images_grid, cmap=cmap)
+    plt.show()
 
 def train(epoch_count, batch_size, z_dim, learning_rate, beta1, get_batches, data_shape, data_image_mode):
     """
@@ -295,13 +296,13 @@ def train(epoch_count, batch_size, z_dim, learning_rate, beta1, get_batches, dat
                     show_generator_output(sess, 20, input_z, output_channel, data_image_mode)
 
 
-def train_mnist(epochs):
+def train_mnist(epochs, batch_size, z_dim, learning_rate, beta1):
     """
     Train the GAN using the MNIST dataset
     :param epochs: number of epochs to train
     """
 
-    mnist_dataset = helper.Dataset('mnist', glob(os.path.join(data_dir, 'mnist/*.jpg')))
+    mnist_dataset = helper.Dataset('mnist', glob(os.path.join(DATA_DIR, 'mnist/*.jpg')))
     with tf.Graph().as_default():
         train(epochs, batch_size, z_dim, learning_rate, beta1,
             mnist_dataset.get_batches, mnist_dataset.shape, mnist_dataset.image_mode)
@@ -313,7 +314,7 @@ def train_celeb(epochs):
     :param epochs: number of epochs to train
     """
 
-    celeba_dataset = helper.Dataset('celeba', glob(os.path.join(data_dir, 'img_align_celeba/*.jpg')))
+    celeba_dataset = helper.Dataset('celeba', glob(os.path.join(DATA_DIR, 'img_align_celeba/*.jpg')))
     with tf.Graph().as_default():
         train(epochs, batch_size, z_dim, learning_rate, beta1,
             celeba_dataset.get_batches, celeba_dataset.shape, celeba_dataset.image_mode)
@@ -334,14 +335,18 @@ def run_tests(b):
         t.test_model_opt(model_opt, tf)
 
 
-# run tests
-run_tests(False)
+def run():
+    # run tests
+    run_tests(False)
 
-# hyperparameters
-batch_size = 128
-z_dim = 100
-learning_rate = 0.001
-beta1 = 0.3
+    # hyperparameters
+    batch_size = 128
+    z_dim = 100
+    learning_rate = 0.001
+    beta1 = 0.3
 
-# train on datasets
-train_mnist(2)
+    # train on datasets
+    train_mnist(2, batch_size, z_dim, learning_rate, beta1)
+    # train_celeb(1, batch_size, z_dim, learning_rate, beta1)
+
+run()
