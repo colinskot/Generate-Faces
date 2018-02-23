@@ -320,24 +320,23 @@ def train_celeb(epochs):
             celeba_dataset.get_batches, celeba_dataset.shape, celeba_dataset.image_mode)
 
 
-def run_tests(b):
+def run_tests():
     """
     Runs all tests from problem_unittests
     :param b: whether to run tests
     """
     import problem_unittests as t
+    
+    t.test_model_inputs(model_inputs)
+    t.test_discriminator(discriminator, tf)
+    t.test_generator(generator, tf)
+    t.test_model_loss(model_loss)
+    t.test_model_opt(model_opt, tf)
 
-    if b:
-        t.test_model_inputs(model_inputs)
-        t.test_discriminator(discriminator, tf)
-        t.test_generator(generator, tf)
-        t.test_model_loss(model_loss)
-        t.test_model_opt(model_opt, tf)
 
-
-def run():
+def run_face_generation():
     # run tests
-    run_tests(False)
+    run_tests() if False
 
     # hyperparameters
     batch_size = 128
@@ -349,4 +348,6 @@ def run():
     train_mnist(2, batch_size, z_dim, learning_rate, beta1)
     # train_celeb(1, batch_size, z_dim, learning_rate, beta1)
 
-run()
+
+if __name__ == '__main__':
+    run_face_generation()
