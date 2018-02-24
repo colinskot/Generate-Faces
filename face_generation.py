@@ -326,7 +326,7 @@ def run_tests():
     :param b: whether to run tests
     """
     import problem_unittests as t
-    
+
     t.test_model_inputs(model_inputs)
     t.test_discriminator(discriminator, tf)
     t.test_generator(generator, tf)
@@ -336,7 +336,8 @@ def run_tests():
 
 def run_face_generation():
     # run tests
-    run_tests() if False
+    if False:
+        run_tests()
 
     # hyperparameters
     batch_size = 128
