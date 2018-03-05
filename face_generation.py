@@ -2,6 +2,7 @@ import helper
 import os
 import numpy as np
 import tensorflow as tf
+import time
 from glob import glob
 from matplotlib import pyplot as plt
 
@@ -239,6 +240,7 @@ def show_generator_output(sess, n_images, input_z, out_channel_dim, image_mode):
     plt.imshow(images_grid, cmap=cmap)
     plt.show()
 
+
 def train(epoch_count, batch_size, z_dim, learning_rate, beta1, get_batches, data_shape, data_image_mode):
     """
     Train the GAN
@@ -308,7 +310,7 @@ def train_mnist(epochs, batch_size, z_dim, learning_rate, beta1):
             mnist_dataset.get_batches, mnist_dataset.shape, mnist_dataset.image_mode)
 
 
-def train_celeb(epochs):
+def train_celeb(epochs, batch_size, z_dim, learning_rate, beta1):
     """
     Train the GAN using the CelebA dataset
     :param epochs: number of epochs to train
@@ -334,9 +336,9 @@ def run_tests():
     t.test_model_opt(model_opt, tf)
 
 
-def run_face_generation():
+def run_face_generation(test, train_on_mnist, train_on_faces):
     # run tests
-    if False:
+    if test:
         run_tests()
 
     # hyperparameters
@@ -346,9 +348,12 @@ def run_face_generation():
     beta1 = 0.3
 
     # train on datasets
-    train_mnist(2, batch_size, z_dim, learning_rate, beta1)
-    # train_celeb(1, batch_size, z_dim, learning_rate, beta1)
+    if train_m:
+        train_mnist(2, batch_size, z_dim, learning_rate, beta1)
+
+    if train_f:
+        train_celeb(3, batch_size, z_dim, learning_rate, beta1)
 
 
 if __name__ == '__main__':
-    run_face_generation()
+    run_face_generation(test=False, train_on_mnist=True, train_on_faces=False)
