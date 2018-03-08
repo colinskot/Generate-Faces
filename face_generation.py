@@ -323,10 +323,7 @@ def train_celeb(epochs, batch_size, z_dim, learning_rate, beta1):
 
 
 def run_tests():
-    """
-    Runs all tests from problem_unittests
-    :param b: whether to run tests
-    """
+    
     import problem_unittests as t
 
     t.test_model_inputs(model_inputs)
@@ -337,9 +334,6 @@ def run_tests():
 
 
 def run_face_generation(test, train_on_mnist, train_on_faces):
-    # run tests
-    if test:
-        run_tests()
 
     # hyperparameters
     batch_size = 128
