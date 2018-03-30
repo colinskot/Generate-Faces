@@ -6,12 +6,22 @@ A Generative Adverserial Network (GAN) produces fake celebrity faces. From a dat
 
 Simply run the Jupyter Notebook dlnd_face_generation.ipynb or you can run the script face_generation.py
 
+```
+python face_generation.py
+```
+
 ### Prerequisites
 
 You can install the required packages through Anaconda's environment manager using the machine-learning.yml file
 
 ```
 conda env create -f machine-learning.yml
+```
+
+Then, activate the environment and run face_generation.py
+
+```
+activate machine-learning
 ```
 
 Otherwise, check out the machine-learning.yml file for dependencies and their versions
