@@ -10,6 +10,9 @@ Simply run the Jupyter Notebook dlnd_face_generation.ipynb or you can run the sc
 python face_generation.py
 ```
 
+## I Just Want to See the Results!
+Just open `dlnd_face_generation.ipynb` here on Github and you can view the results of the project!
+
 ### Prerequisites
 
 You can install the required packages through Anaconda's environment manager using the machine-learning.yml file
