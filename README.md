@@ -1,4 +1,4 @@
-# Generate-Faces
+# Generate Faces
 
 A Generative Adverserial Network (GAN) produces fake celebrity faces. From a dataset of over 200,000 low resolution pictures that are cropped to 28x28, this machine learning architecture learns to generate images and discriminate it's own creation.
 
